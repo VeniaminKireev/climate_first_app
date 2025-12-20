@@ -645,6 +645,42 @@ def main():
                             st.session_state['weather_data'] = weather_data
                             st.session_state['last_update'] = datetime.now()
             
+            # Кастомные стили для плиток "Текущие показатели" (можно разместить прямо перед ними)
+            st.markdown("""
+            <style>
+            /* Стили для плиток в текущем блоке */
+            div[data-testid="column"] div[data-testid="stMetric"] {
+                background-color: #f0f8ff; /* Светло-голубой фон плитки */
+                padding: 15px;
+                border-radius: 10px;
+                border-left: 4px solid #1E90FF; /* Синяя акцентная полоса */
+            }
+
+            /* Цвет и стиль заголовка (label), например, "Температура" */
+            div[data-testid="column"] div[data-testid="stMetricLabel"] p {
+                color: #1E3A8A !important; /* Темно-синий цвет */
+                font-size: 16px !important;
+                font-weight: 600 !important;
+                margin-bottom: 5px !important;
+            }
+
+            /* Цвет и стиль основного значения (value), например, "22.5°C" */
+            div[data-testid="column"] div[data-testid="stMetricValue"] {
+            color: #DC2626 !important; /* Красный цвет для значения */
+            font-size: 32px !important;
+            font-weight: 700 !important;
+            }
+
+            /* Стиль для блока с дельтой (delta), например, "Ощущается как..." */
+            div[data-testid="column"] div[data-testid="stMetricDelta"] svg {
+            display: none; /* Скрыть стрелку (индикатор роста/падения) */
+            }
+            div[data-testid="column"] div[data-testid="stMetricDelta"] span {
+                color: #475569 !important; /* Серый цвет для текста дельты */
+                font-size: 14px !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
             # Отображение текущей погоды
             if 'weather_data' in st.session_state:
                 weather_data = st.session_state['weather_data']
@@ -1063,4 +1099,5 @@ if __name__ == "__main__":
     """, unsafe_allow_html=True)
     
     # Запуск основного приложения
+
     main()
