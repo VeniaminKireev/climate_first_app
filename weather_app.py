@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -15,10 +14,6 @@ from plotly.subplots import make_subplots
 import warnings
 warnings.filterwarnings('ignore')
 
-# ============================================================================
-# НАСТРОЙКА СТРАНИЦЫ
-# ============================================================================
-
 st.set_page_config(
     page_title="Climate Analysis Dashboard",
     page_icon="🌡️",
@@ -26,26 +21,19 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ============================================================================
-# ФУНКЦИИ ДЛЯ АНАЛИЗА ИСТОРИЧЕСКИХ ДАННЫХ
-# ============================================================================
-
 class HistoricalAnalyzer:
-    """Класс для анализа исторических температурных данных"""
-    
+      
     def __init__(self):
         self.data = None
         self.results = {}
         
     def load_data(self, df):
-        """Загрузка исторических данных"""
         self.data = df.copy()
         if 'timestamp' in self.data.columns:
             self.data['timestamp'] = pd.to_datetime(self.data['timestamp'])
         return self.data
     
     def analyze_city(self, city_data):
-        """Анализ данных для одного города"""
         city_data = city_data.sort_values('timestamp').copy()
         
         # 1. Скользящее среднее за 30 дней
@@ -79,7 +67,6 @@ class HistoricalAnalyzer:
                 'lower': lower_limit
             }
             
-            # Находим аномалии для этого сезона
             season_data = city_data[city_data['season'] == season]
             season_anomalies = season_data[
                 (season_data['temperature'] > upper_limit) | 
@@ -111,7 +98,6 @@ class HistoricalAnalyzer:
         }
     
     def analyze_sequential(self):
-        """Последовательный анализ всех городов"""
         results = {}
         for city in self.data['city'].unique():
             city_data = self.data[self.data['city'] == city].copy()
@@ -119,7 +105,6 @@ class HistoricalAnalyzer:
         return results
     
     def analyze_parallel(self, max_workers=4):
-        """Параллельный анализ всех городов"""
         cities = self.data['city'].unique()
         results = {}
         
@@ -136,19 +121,13 @@ class HistoricalAnalyzer:
         
         return results
 
-# ============================================================================
-# ФУНКЦИИ ДЛЯ РАБОТЫ С OpenWeatherMap API
-# ============================================================================
-
 class WeatherAPI:
-    """Класс для работы с OpenWeatherMap API"""
-    
+       
     def __init__(self, api_key=None):
         self.api_key = api_key
         self.base_url = "https://api.openweathermap.org/data/2.5/weather"
         
     def get_current_weather_sync(self, city):
-        """Синхронное получение текущей погоды"""
         if not self.api_key:
             return {'success': False, 'error': 'API ключ не указан'}
         
@@ -199,7 +178,6 @@ class WeatherAPI:
             }
     
     async def get_current_weather_async(self, city, session):
-        """Асинхронное получение текущей погоды"""
         if not self.api_key:
             return {'success': False, 'error': 'API ключ не указан'}
         
@@ -248,12 +226,7 @@ class WeatherAPI:
                 'message': f'Ошибка: {str(e)}'
             }
 
-# ============================================================================
-# ФУНКЦИИ ДЛЯ ВИЗУАЛИЗАЦИИ
-# ============================================================================
-
 def create_temperature_time_series(city_data, anomalies_df):
-    """Создание временного ряда температур с выделением аномалий"""
     fig = go.Figure()
     
     # Основной временной ряд
@@ -301,7 +274,6 @@ def create_temperature_time_series(city_data, anomalies_df):
     return fig
 
 def create_seasonal_profile(seasonal_stats):
-    """Создание сезонных профилей"""
     fig = go.Figure()
     
     # Порядок сезонов
@@ -335,7 +307,6 @@ def create_seasonal_profile(seasonal_stats):
     return fig
 
 def create_distribution_plot(city_data, current_temp=None):
-    """Создание графика распределения температур"""
     fig = go.Figure()
     
     # Гистограмма
@@ -383,7 +354,6 @@ def create_distribution_plot(city_data, current_temp=None):
     return fig
 
 def create_box_plot_by_season(city_data):
-    """Создание боксплота по сезонам"""
     fig = px.box(
         city_data,
         x='season',
@@ -396,12 +366,10 @@ def create_box_plot_by_season(city_data):
     fig.update_layout(height=400)
     return fig
 
-# ============================================================================
+
 # ГЕНЕРАЦИЯ ДЕМО-ДАННЫХ (если файл не загружен)
-# ============================================================================
 
 def generate_demo_data():
-    """Генерация демонстрационных данных"""
     seasonal_temperatures = {
         "New York": {"winter": 0, "spring": 10, "summer": 25, "autumn": 15},
         "London": {"winter": 5, "spring": 11, "summer": 18, "autumn": 12},
@@ -447,21 +415,12 @@ def generate_demo_data():
     df = pd.DataFrame(data)
     return df
 
-# ============================================================================
-# ОСНОВНОЕ ПРИЛОЖЕНИЕ STREAMLIT
-# ============================================================================
-
 def main():
-    """Основная функция Streamlit приложения"""
-    
+       
     # Заголовок приложения
     st.title("🌡️ Climate Analysis Dashboard")
     st.markdown("---")
-    
-    # ========================================================================
-    # САЙДБАР: ЗАГРУЗКА ДАННЫХ И НАСТРОЙКИ
-    # ========================================================================
-    
+      
     with st.sidebar:
         st.header("📂 Загрузка данных")
         
@@ -532,10 +491,7 @@ def main():
         - Аномалии: температура вне среднее ± 2σ
         """)
     
-    # ========================================================================
-    # ОСНОВНОЙ КОНТЕНТ
-    # ========================================================================
-    
+       
     # Инициализация анализатора
     analyzer = HistoricalAnalyzer()
     analyzer.load_data(df)
@@ -645,7 +601,6 @@ def main():
                             st.session_state['weather_data'] = weather_data
                             st.session_state['last_update'] = datetime.now()
             
-            # Кастомные стили для плиток "Текущие показатели" (можно разместить прямо перед ними)
             st.markdown("""
             <style>
             /* Стили для плиток в текущем блоке */
@@ -1076,10 +1031,6 @@ def main():
                 hide_index=True
             )
 
-# ============================================================================
-# ЗАПУСК ПРИЛОЖЕНИЯ
-# ============================================================================
-
 if __name__ == "__main__":
     # Установка стилей
     st.markdown("""
@@ -1101,3 +1052,4 @@ if __name__ == "__main__":
     # Запуск основного приложения
 
     main()
+
